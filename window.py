@@ -2,6 +2,7 @@ import tkinter
 import customtkinter
 import converter
 import constants
+import ctypes
 
 class Frame(customtkinter.CTkFrame):
     def __init__(self, root, **kwargs):
@@ -12,6 +13,8 @@ class Window(customtkinter.CTk):
     def __init__(self):
         super().__init__()
         
+        ctypes.windll.shcore.SetProcessDpiAwareness(1)
+
         self._set_appearance_mode("System")
         self.geometry("1280x720")
         self.grid_rowconfigure(0, weight=1)
@@ -40,6 +43,9 @@ class Window(customtkinter.CTk):
         output_frame.grid_columnconfigure(1, weight=1)
 
         # Input frame widgets
+        converter.show_images_frame = customtkinter.CTkScrollableFrame(master=input_frame)
+        converter.show_images_frame.grid(row=0, columnspan=2, padx=(30, 30), pady=20, ipadx=200, ipady=100, sticky='n')
+
         button_selectf = customtkinter.CTkButton(master=input_frame, 
                                                  width=200, 
                                                  height=40, 
@@ -55,6 +61,7 @@ class Window(customtkinter.CTk):
         button_start.grid(row=1, column=1, padx=50, pady=5, sticky='e')
 
         # Output frame widgets
+
         converter.dropdown_var = customtkinter.StringVar(value=constants.STRING_LIST[2])
         dropdown = customtkinter.CTkOptionMenu(master=output_frame, 
                                                width=200,

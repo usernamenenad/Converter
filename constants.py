@@ -6,5 +6,9 @@ STRING_LIST = [
     "Images",
     "Error!",
     "Conversion error! Check if you have selected destination folder or if the image format is not supported!",
-    "You have not selected the conversion type!"
-    ]
+    "You have not selected the conversion type!",
+    "No files to convert!"]
+
+IMAGETYPES = [(STRING_LIST[4], "*.jpg"), (STRING_LIST[4], "*.png")]
+
+LOADED_IMAGES = 0
