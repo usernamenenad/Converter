@@ -1,12 +1,18 @@
 import tkinter
 import customtkinter
-import converter
 import constants
 import ctypes
 
 class Frame(customtkinter.CTkFrame):
-    def __init__(self, root, **kwargs):
-        super().__init__(root)
+    def __init__(self, master, **kwargs):
+        super().__init__(master=master,fg_color=kwargs['fg_color'], 
+                         width=kwargs['wh'][0], height=kwargs['wh'][1])
+        
+        super().grid(row=kwargs['rc'][0], column=kwargs['rc'][1],
+                     padx=kwargs['padxy'][0], pady=kwargs['padxy'][1],
+                     sticky=kwargs['sticky'])
+        
+        super().grid_propagate(False)
 
 class Window(customtkinter.CTk):
 
@@ -21,62 +27,76 @@ class Window(customtkinter.CTk):
         self.grid_columnconfigure(0, weight=1)
         self.resizable(False, False)
 
-        self.main_frame = Frame(root=self)
+        self.main_frame = customtkinter.CTkFrame(master=self)
         self.main_frame.grid(padx=20, pady=20, sticky="nsew")
         self.main_frame.grid_propagate(False)
         self.main_frame.grid_rowconfigure(0, weight=1)
         self.main_frame.grid_columnconfigure((0, 1), weight=1)
 
-        input_frame = Frame(root=self.main_frame)
-        input_frame.grid(row=0, column=0, padx=10, pady=10, ipadx=256, ipady=256, sticky='w')
-        input_frame.grid_propagate(False)
-        input_frame.grid_rowconfigure(0, weight=8)
-        input_frame.grid_rowconfigure(1, weight=1)
-        input_frame.grid_columnconfigure((0, 1), weight=1)
+        self.input_frame = customtkinter.CTkFrame(master=self.main_frame)
+        self.input_frame.grid(row=0, column=0, padx=10, pady=10, ipadx=256, ipady=256, sticky='w')
+        self.input_frame.grid_propagate(False)
+        self.input_frame.grid_rowconfigure(0, weight=8)
+        self.input_frame.grid_rowconfigure(1, weight=1)
+        self.input_frame.grid_columnconfigure((0, 1), weight=1)
 
-        output_frame = Frame(root=self.main_frame)
-        output_frame.grid(row=0, column=1, padx=10, pady=10, ipadx=256, ipady=256, sticky='e')
-        output_frame.grid_propagate(False)
-        output_frame.grid_rowconfigure(0, weight=1)
-        output_frame.grid_rowconfigure(1, weight=8)
-        output_frame.grid_columnconfigure(0, weight=1)
-        output_frame.grid_columnconfigure(1, weight=1)
+        self.output_frame = customtkinter.CTkFrame(master=self.main_frame)
+        self.output_frame.grid(row=0, column=1, padx=10, pady=10, ipadx=256, ipady=256, sticky='e')
+        self.output_frame.grid_propagate(False)
+        self.output_frame.grid_rowconfigure(0, weight=1)
+        self.output_frame.grid_rowconfigure(1, weight=8)
+        self.output_frame.grid_columnconfigure((0, 1), weight=1)
 
         # Input frame widgets
-        converter.show_images_frame = customtkinter.CTkScrollableFrame(master=input_frame)
-        converter.show_images_frame.grid(row=0, columnspan=2, padx=(30, 30), pady=20, ipadx=200, ipady=100, sticky='n')
+        #converter.show_images_frame = customtkinter.CTkScrollableFrame(master=self.input_frame)
+        #converter.show_images_frame.grid(row=0, columnspan=2, padx=(30, 30), pady=20, ipadx=200, ipady=100, sticky='n')
+        
+        self.input_frame_widgets = {}
+        self.output_frame_widgets = {}
 
-        button_selectf = customtkinter.CTkButton(master=input_frame, 
-                                                 width=200, 
-                                                 height=40, 
-                                                 text=constants.STRING_LIST[0],
-                                                 command=converter.loadFiles)
-        button_selectf.grid(row=1, column=0, padx=50, pady=5, sticky='w')
+    def update_wgt_list(self, frame, name, wgt):
+        if(frame == self.input_frame):
+            self.input_frame_widgets.update({name : wgt})
+        if(frame == self.output_frame):
+            self.output_frame_widgets.update({name : wgt})
+    
+    def add_button(self, frame, name, **kwargs):
+        button = customtkinter.CTkButton(master=frame, 
+                                                 width=kwargs['wh'][0], 
+                                                 height=kwargs['wh'][1], 
+                                                 text=kwargs['text'],
+                                                 command=kwargs['command'])
+        button.grid(row=kwargs['rc'][0], column=kwargs['rc'][1], 
+                            padx=kwargs['padxy'][0], pady=kwargs['padxy'][1], 
+                            sticky=kwargs['sticky'])
+        
+        self.update_wgt_list(frame, name, button)
 
-        button_start = customtkinter.CTkButton(master=input_frame, 
-                                               width=200, 
-                                               height=40, 
-                                               text=constants.STRING_LIST[1],
-                                               command=converter.startConversion)
-        button_start.grid(row=1, column=1, padx=50, pady=5, sticky='e')
+        return button
 
-        # Output frame widgets
-
-        converter.dropdown_var = customtkinter.StringVar(value=constants.STRING_LIST[2])
-        dropdown = customtkinter.CTkOptionMenu(master=output_frame, 
-                                               width=200,
-                                               height=40,
-                                               values=["PNG", "JPEG"], 
-                                               variable=converter.dropdown_var)
-        dropdown.grid(row=0, column=0, padx=50, sticky='w')
+    def add_dropdown(self, frame, name, **kwargs):
+        kwargs['var'] = customtkinter.StringVar(value=kwargs['valuevar'])
+        dropdown = customtkinter.CTkOptionMenu(master=frame, 
+                                               width=kwargs['wh'][0],
+                                               height=kwargs['wh'][1],
+                                               values=kwargs['values'], 
+                                               variable=kwargs['var'])
+        dropdown.grid(row=kwargs['rc'][0], column=kwargs['rc'][1], 
+                      padx=kwargs['padxy'][0], pady=kwargs['padxy'][1], 
+                      sticky=kwargs['sticky'])
         dropdown.set(constants.STRING_LIST[2])
 
-        button_dest = customtkinter.CTkButton(master=output_frame, 
-                                               width=200, height=40, 
-                                               text=constants.STRING_LIST[3],
-                                               command=converter.selectDirectory)
-        button_dest.grid(row=0, column=1, padx=50, sticky='e')
+        self.update_wgt_list(frame, name, dropdown)
 
-if __name__ == "__main__":
-    app = Window()
-    app.mainloop()
+        return dropdown
+
+    def add_scrollable_frame(self, frame, name, **kwargs):
+        scrollable = customtkinter.CTkScrollableFrame(master=frame)
+        scrollable.grid(row=kwargs['rc'][0], column=kwargs['rc'][1],
+                        padx=kwargs['padxy'][0], pady=kwargs['padxy'][1],
+                        ipadx=kwargs['ipadxy'][0], ipady=kwargs['ipadxy'][1],
+                        sticky=kwargs['sticky'])
+
+        self.update_wgt_list(frame, name, scrollable)
+
+        return scrollable

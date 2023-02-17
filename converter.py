@@ -1,16 +1,16 @@
 import os
 import constants
-import customtkinter
 import tkinter
+import customtkinter
+import window
 from tkinter import filedialog
 from tkinter import messagebox
 from PIL import Image
 from pathlib import Path
 
-global dropdown_var
-global show_images_frame
-global filenames
-global  image_frame
+dropdown_var = None
+show_images_frame = None
+image_frame = None
 filenames = []
 map = {}
 
@@ -21,9 +21,10 @@ def destroy_frame(frame):
     constants.LOADED_IMAGES-=1
 
 def generate_loaded_frames(file):
-        image_frame = customtkinter.CTkFrame(master=show_images_frame, fg_color="gray", width=500, height=100)
-        image_frame.grid(row=constants.LOADED_IMAGES, padx=10, pady=10, sticky='n')
-        image_frame.grid_propagate(False)
+        image_frame = window.Frame(show_images_frame, fg_color='gray', wh=[500, 100],
+                            rc=[constants.LOADED_IMAGES, 0], 
+                            padxy=[10, 10],
+                            sticky='n')
         image_frame.columnconfigure(2, weight=1)
 
         map.update({image_frame : file})
@@ -31,10 +32,15 @@ def generate_loaded_frames(file):
         loc, ext = os.path.splitext(file)
         name = Path(loc).stem  
         
-        image_name = customtkinter.CTkLabel(master=image_frame, width=100, height=50, text=name, wraplength=100, justify="center")
+        image_name = customtkinter.CTkLabel(master=image_frame, 
+                                            width=100, height=50, 
+                                            text=name, 
+                                            wraplength=100, 
+                                            justify="center")
         image_name.grid(row=0, column=0, padx=20)
-
-        delete_button = customtkinter.CTkButton(master=image_frame, 
+        
+        delete_button = customtkinter.CTkButton(master=image_frame,
+                                                text = constants.STRING_LIST[9], 
                                                 command=lambda frame=image_frame: destroy_frame(frame))
         delete_button.grid(row=0, column=2, padx=10, pady=(35, 35), sticky='e')
 
@@ -64,10 +70,7 @@ def startConversion():
                     name = Path(loc).stem  
                     Image.open(filenames[constants.LOADED_IMAGES-1]).convert('RGB').save(directory + "/" + name + '.' + dropdown_var.get().lower())
                     
-                    key_list = list(map.keys())
-                    val_list = list(map.values())
-                    pos = val_list.index(filenames[constants.LOADED_IMAGES-1])
-                    destroy_frame(key_list[pos])
+                    destroy_frame(list(map.keys())[list(map.values()).index(filenames[constants.LOADED_IMAGES-1])])
             
             except:
                 messagebox.showerror(constants.STRING_LIST[5], constants.STRING_LIST[6])
