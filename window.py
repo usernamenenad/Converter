@@ -16,16 +16,16 @@ class Frame(customtkinter.CTkFrame):
 
 class Window(customtkinter.CTk):
 
-    def __init__(self):
+    def __init__(self, app_mode, res, resizable, title):
         super().__init__()
         
         ctypes.windll.shcore.SetProcessDpiAwareness(1)
-
-        self._set_appearance_mode("System")
-        self.geometry("1280x720")
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_columnconfigure(0, weight=1)
-        self.resizable(False, False)
+        
+        self.title(title)
+        self._set_appearance_mode(app_mode)
+        self.geometry(res)
+        self.resizable(resizable[0], resizable[1])
+        self.font = customtkinter.CTkFont(family='Cascadia Mono')
 
         self.main_frame = customtkinter.CTkFrame(master=self)
         self.main_frame.grid(padx=20, pady=20, sticky="nsew")
@@ -61,11 +61,12 @@ class Window(customtkinter.CTk):
             self.output_frame_widgets.update({name : wgt})
     
     def add_button(self, frame, name, **kwargs):
-        button = customtkinter.CTkButton(master=frame, 
-                                                 width=kwargs['wh'][0], 
-                                                 height=kwargs['wh'][1], 
-                                                 text=kwargs['text'],
-                                                 command=kwargs['command'])
+        button = customtkinter.CTkButton(master=frame,
+                                         width=kwargs['wh'][0], 
+                                         height=kwargs['wh'][1], 
+                                         text=kwargs['text'],
+                                         font = self.font,
+                                         command=kwargs['command'])
         button.grid(row=kwargs['rc'][0], column=kwargs['rc'][1], 
                             padx=kwargs['padxy'][0], pady=kwargs['padxy'][1], 
                             sticky=kwargs['sticky'])
@@ -75,12 +76,13 @@ class Window(customtkinter.CTk):
         return button
 
     def add_dropdown(self, frame, name, **kwargs):
-        kwargs['var'] = customtkinter.StringVar(value=kwargs['valuevar'])
+        var = customtkinter.StringVar(value=kwargs['valuevar'])
         dropdown = customtkinter.CTkOptionMenu(master=frame, 
                                                width=kwargs['wh'][0],
                                                height=kwargs['wh'][1],
+                                               font = self.font,
                                                values=kwargs['values'], 
-                                               variable=kwargs['var'])
+                                               variable=var)
         dropdown.grid(row=kwargs['rc'][0], column=kwargs['rc'][1], 
                       padx=kwargs['padxy'][0], pady=kwargs['padxy'][1], 
                       sticky=kwargs['sticky'])
@@ -88,7 +90,7 @@ class Window(customtkinter.CTk):
 
         self.update_wgt_list(frame, name, dropdown)
 
-        return dropdown
+        return dropdown, var
 
     def add_scrollable_frame(self, frame, name, **kwargs):
         scrollable = customtkinter.CTkScrollableFrame(master=frame)

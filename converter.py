@@ -21,7 +21,7 @@ def destroy_frame(frame):
     constants.LOADED_IMAGES-=1
 
 def generate_loaded_frames(file):
-        image_frame = window.Frame(show_images_frame, fg_color='gray', wh=[500, 100],
+        image_frame = window.Frame(show_images_frame, fg_color='#333333', wh=[500, 100],
                             rc=[constants.LOADED_IMAGES, 0], 
                             padxy=[10, 10],
                             sticky='n')
@@ -29,11 +29,12 @@ def generate_loaded_frames(file):
 
         map.update({image_frame : file})
 
-        loc, ext = os.path.splitext(file)
-        name = Path(loc).stem  
+        info = os.path.splitext(file)               # Returns location and extension
+        name = Path(info[0]).stem  
         
         image_name = customtkinter.CTkLabel(master=image_frame, 
-                                            width=100, height=50, 
+                                            width=100, height=50,
+                                            font=customtkinter.CTkFont(family='Cascadia Mono', size=12),
                                             text=name, 
                                             wraplength=100, 
                                             justify="center")
@@ -41,6 +42,7 @@ def generate_loaded_frames(file):
         
         delete_button = customtkinter.CTkButton(master=image_frame,
                                                 text = constants.STRING_LIST[9], 
+                                                font = customtkinter.CTkFont(family="Cascadia Mono"),
                                                 command=lambda frame=image_frame: destroy_frame(frame))
         delete_button.grid(row=0, column=2, padx=10, pady=(35, 35), sticky='e')
 
@@ -66,8 +68,8 @@ def startConversion():
                 return
             try:
                 while len(filenames) != 0:
-                    loc, ext = os.path.splitext(filenames[constants.LOADED_IMAGES-1])
-                    name = Path(loc).stem  
+                    info = os.path.splitext(filenames[constants.LOADED_IMAGES-1])
+                    name = Path(info[0]).stem  
                     Image.open(filenames[constants.LOADED_IMAGES-1]).convert('RGB').save(directory + "/" + name + '.' + dropdown_var.get().lower())
                     
                     destroy_frame(list(map.keys())[list(map.values()).index(filenames[constants.LOADED_IMAGES-1])])
