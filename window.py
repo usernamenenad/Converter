@@ -4,15 +4,43 @@ import constants
 import ctypes
 
 class Frame(customtkinter.CTkFrame):
-    def __init__(self, master, **kwargs):
-        super().__init__(master=master,fg_color=kwargs['fg_color'], 
-                         width=kwargs['wh'][0], height=kwargs['wh'][1])
+    def __init__(self, root):
         
-        super().grid(row=kwargs['rc'][0], column=kwargs['rc'][1],
-                     padx=kwargs['padxy'][0], pady=kwargs['padxy'][1],
-                     sticky=kwargs['sticky'])
+        super().__init__(master=root)
         
         super().grid_propagate(False)
+
+    def frame_settings(self, **kwargs):
+        
+        if kwargs.get('rc') != None:
+            self.grid(row=kwargs['rc'][0], column=kwargs['rc'][1])
+
+        if kwargs.get('wh') != None:
+            self.configure(width=kwargs['wh'][0], height=kwargs['wh'][1])
+
+        if kwargs.get('padxy') != None:
+            self.grid(padx=kwargs['padxy'][0], pady=kwargs['padxy'][1])
+
+        if kwargs.get('ipadxy') != None:
+            self.grid(ipadx=kwargs['ipadxy'][0], ipady=kwargs['ipadxy'][1])
+
+        if kwargs.get('sticky') != None:
+            self.grid(sticky=kwargs['sticky'])
+
+        if kwargs.get('fg_color') != None:
+            self.configure(fg_color=kwargs['fg_color'])
+        
+        if kwargs.get('rowcon') != None:
+            i = 0
+            for row in kwargs['rowcon']:
+                self.grid_rowconfigure(row, weight=kwargs['rweight'][i])
+                i+=1
+
+        if kwargs.get('colcon') != None:
+            i = 0
+            for column in kwargs['colcon']:
+                self.grid_columnconfigure(column, weight=kwargs['cweight'][i])
+                i+=1
 
 class Window(customtkinter.CTk):
 
@@ -20,37 +48,36 @@ class Window(customtkinter.CTk):
         super().__init__()
         
         ctypes.windll.shcore.SetProcessDpiAwareness(1)
-        
+
         self.title(title)
         self._set_appearance_mode(app_mode)
         self.geometry(res)
         self.resizable(resizable[0], resizable[1])
-        self.font = customtkinter.CTkFont(family='Cascadia Mono')
-
-        self.main_frame = customtkinter.CTkFrame(master=self)
-        self.main_frame.grid(padx=20, pady=20, sticky="nsew")
-        self.main_frame.grid_propagate(False)
-        self.main_frame.grid_rowconfigure(0, weight=1)
-        self.main_frame.grid_columnconfigure((0, 1), weight=1)
-
-        self.input_frame = customtkinter.CTkFrame(master=self.main_frame)
-        self.input_frame.grid(row=0, column=0, padx=10, pady=10, ipadx=256, ipady=256, sticky='w')
-        self.input_frame.grid_propagate(False)
-        self.input_frame.grid_rowconfigure(0, weight=8)
-        self.input_frame.grid_rowconfigure(1, weight=1)
-        self.input_frame.grid_columnconfigure((0, 1), weight=1)
-
-        self.output_frame = customtkinter.CTkFrame(master=self.main_frame)
-        self.output_frame.grid(row=0, column=1, padx=10, pady=10, ipadx=256, ipady=256, sticky='e')
-        self.output_frame.grid_propagate(False)
-        self.output_frame.grid_rowconfigure(0, weight=1)
-        self.output_frame.grid_rowconfigure(1, weight=8)
-        self.output_frame.grid_columnconfigure((0, 1), weight=1)
-
-        # Input frame widgets
-        #converter.show_images_frame = customtkinter.CTkScrollableFrame(master=self.input_frame)
-        #converter.show_images_frame.grid(row=0, columnspan=2, padx=(30, 30), pady=20, ipadx=200, ipady=100, sticky='n')
+        self.font = customtkinter.CTkFont(family='Uni Sans')
         
+        # App's main frame
+        self.main_frame = Frame(self)
+        self.main_frame.frame_settings(rowcon=[0], rweight=[1], 
+                                       colcon=[0, 1], cweight=[1, 1],
+                                       padxy=[20, 20],
+                                       sticky='nsew')
+        
+        # App's input frame, fixed on main frame
+        self.input_frame = Frame(self.main_frame)
+        self.input_frame.frame_settings(rc=[0, 0], 
+                                        rowcon=[0, 1], rweight=[8, 1], 
+                                        colcon=[0, 1], cweight=[1, 1],
+                                        padxy=[10, 10], ipadxy=[256, 256],
+                                        sticky='w') 
+        
+        # App's output frame, fixed on main frame
+        self.output_frame = Frame(self.main_frame)
+        self.output_frame.frame_settings(rc=[0, 1],
+                                         rowcon=[0, 1], rweight=[1, 8],
+                                         colcon=[0, 1], cweight=[1, 1],
+                                         padxy=[10, 10], ipadxy=[256, 256], 
+                                         sticky='e')
+
         self.input_frame_widgets = {}
         self.output_frame_widgets = {}
 
@@ -102,3 +129,6 @@ class Window(customtkinter.CTk):
         self.update_wgt_list(frame, name, scrollable)
 
         return scrollable
+        
+    def add_progress_bar(self, frame, name, **kwargs):
+        progress_bar = customtkinter.CTkProgressBar(master=frame)

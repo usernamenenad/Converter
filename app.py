@@ -8,6 +8,12 @@ if __name__ == '__main__':
     app.grid_rowconfigure(0, weight=1)
     app.grid_columnconfigure(0, weight=1)
 
+    # Input frame settings
+    app.main_frame.frame_settings(rows=[0], cols=[0, 1], rweight=[1], cweight=[1, 1])
+    app.input_frame.frame_settings(rows=[0, 1], cols=[0, 1], rweight=[8, 1], cweight=[1, 1])
+    app.output_frame.frame_settings(rows=[0, 1], cols=[0, 1], rweight=[1, 8], cweight=[1, 1])
+    
+    # Input frame widgets
     cfb = app.add_button(app.input_frame, name='Choose files button',
                          wh=constants.DEFAULT_BUTTON_WH, 
                          text=constants.STRING_LIST[0],
@@ -16,7 +22,7 @@ if __name__ == '__main__':
                          padxy=constants.DEFAULT_BUTTON_PADXY,
                          sticky='w')
     
-    scb = app.add_button(app.input_frame, name="Start conversion button",
+    scb = app.add_button(app.input_frame, name='Start conversion button',
                          wh=constants.DEFAULT_BUTTON_WH,
                          text=constants.STRING_LIST[1],
                          command=converter.startConversion,
@@ -24,13 +30,13 @@ if __name__ == '__main__':
                          padxy=constants.DEFAULT_BUTTON_PADXY,
                          sticky='e')
     
-    converter.show_images_frame = app.add_scrollable_frame(app.input_frame, name="Scrollable frame showing files",
+    converter.show_images_frame = app.add_scrollable_frame(app.input_frame, name='Scrollable frame showing files',
                                                            rc=[0, 0], padxy=[(30, 30), 35],
                                                            ipadxy=[200, 100],
                                                            sticky='n')
     converter.show_images_frame.grid(columnspan=2)
     
-    #Output frame widgets
+    # Output frame widgets
     scd, converter.dropdown_var = app.add_dropdown(app.output_frame, name='Select conversion type dropdown',
                                                    valuevar=constants.STRING_LIST[2],
                                                    wh=constants.DEFAULT_BUTTON_WH,
@@ -46,5 +52,5 @@ if __name__ == '__main__':
                          rc=[0, 1],
                          padxy=[50, 0],
                          sticky='e')
-    
+   
     app.mainloop()
